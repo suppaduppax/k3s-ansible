@@ -1,0 +1,43 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files:
+    - vars/config.yml
+
+  tasks:
+    - name: Create vm template for k3s servers
+      include_role:
+        role: create_vm_template
+      vars:
+        create_vm_template_config: "{{ item }}"
+        create_vm_template_type: k3s_servers
+      loop: "{{ k3s_config.nodes.k3s_servers.hosts }}"
+      when: item.template is undefined
+
+    - name: Create vm template for k3s agents
+      include_role:
+        role: create_vm_template
+      vars:
+        create_vm_template_config: "{{ item }}"
+        create_vm_template_type: k3s_agents
+      loop: "{{ k3s_config.nodes.k3s_agents.hosts }}"
+      when: item.template is undefined
+
+    - name: Create vm template for k3s databases
+      include_role:
+        role: create_vm_template
+      vars:
+        create_vm_template_config: "{{ item }}"
+        create_vm_template_type: k3s_databases
+      loop: "{{ k3s_config.nodes.k3s_databases.hosts }}"
+      when: item.template is undefined
+
+    - name: Create vm template for k3s loadbalancers
+      include_role:
+        role: create_vm_template
+      vars:
+        create_vm_template_config: "{{ item }}"
+        create_vm_template_type: k3s_loadbalancers
+      loop: "{{ k3s_config.nodes.k3s_loadbalancers.hosts }}"
+      when: item.template is undefined

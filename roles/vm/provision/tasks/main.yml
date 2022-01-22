@@ -1,0 +1,65 @@
+- debug:
+    msg: "Provisioning {{ provision_node.inventory_hostname | mandatory }}"
+
+- name: Gather facts from node
+  setup:
+  delegate_to: "{{ provision_node.inventory_hostname | mandatory }}"
+  delegate_facts: yes
+  register: setup_result
+
+#- debug: var="setup_result.failed"
+
+- name: Ensure host setup was successful block
+#  when:
+#    - setup_result is defined 
+#    - setup_result.failed is defined
+#    - setup_result.failed != True
+  block:
+    - name: Set network
+      include_role:
+        name: lab.common.set_network
+        apply:
+          delegate_to: "{{ provision_node.inventory_hostname }}"
+          delegate_facts: yes
+      vars:
+        ansible_python_interpreter: "/usr/bin/python3"
+        set_network_distribution: "{{ hostvars[provision_node.inventory_hostname].ansible_distribution }}"
+        dhcp_enabled: false
+        interfaces:
+          iface: "{{ provision_node.ansible_default_ipv4.interface }}"
+          address: "{{ provision_node.ip | ipaddr('address') }}"
+          netmask: "{{ provision_node.ip | ipaddr('netmask') }}"
+          gateway: "{{ provision_node.gateway | default(k3s_config.gateway) }}"
+          nameservers: "{{ provision_node.dns_servers | default(k3s_config.dns_servers) }}"
+
+    - name: Set passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers
+        state: present
+        regexp: '^{{ ansible_user }}'
+        line: '{{ ansible_user }} ALL=(ALL) NOPASSWD:ALL'
+        validate: 'visudo -cf %s'
+
+      # disabled for now. seeing if needed.
+      when: false
+
+    - name: Set hostname
+      include_role:
+        role: lab.common.set_hostname
+        apply:
+          delegate_to: "{{ provision_node.inventory_hostname }}"
+      vars:
+        hostname: "{{ provision_node.inventory_hostname }}"
+        domain: home
+
+    - name: Restart vm if network was changed
+      community.vmware.vmware_guest_powerstate:
+        hostname: "{{ vcenter_hostname | mandatory }}"
+        username: "{{ vcenter_username | mandatory }}"
+        password: "{{ vcenter_password | mandatory }}"
+        name: "{{ provision_node.inventory_hostname | mandatory }}"
+        validate_certs: "{{ vcenter_validate_certs | default(False) }}"
+        folder: "{{ vcenter_path | default( '/' + vcenter_datacenter + '/' + (vm_folder | default('')) + '/vm') }}"
+        state: "reboot-guest"
+      when: hostvars[provision_node.inventory_hostname]['set_network_result'].changed
+

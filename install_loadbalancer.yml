@@ -1,0 +1,4 @@
+---
+- hosts: loadbalancer
+  roles:
+    - role: k3s/loadbalancer

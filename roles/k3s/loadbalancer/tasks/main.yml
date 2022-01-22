@@ -1,0 +1,19 @@
+---
+- name: Become block
+  become: yes
+  block:
+    - name: Apt update and install nginx
+      apt:
+        update_cache: yes
+        name:
+          - nginx
+
+    - name: Copy nginx.conf template
+      template:
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+      vars:
+        nginx_k3s_servers: "{{ groups['master'] }}"
+        nginx_k3s_services: "{{ reverse_proxy }}"
+        nginx_k3s_server_port: "{{ server_port | default(6443) }}"
+      notify: Restart nginx

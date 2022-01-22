@@ -1,0 +1,38 @@
+---
+# Cloning doesn't work with debian10_guest64 so force it to otherLinux64Guest
+- debug:
+    msg: "Creating vm template '{{ template.inventory_hostname }}'"
+
+- name: Create virtual machine (vcenter)
+  vmware_guest:
+    hostname: "{{ vcenter_hostname | mandatory }}"
+    username: "{{ vcenter_username | mandatory }}"
+    password: "{{ vcenter_password | mandatory }}"
+    datacenter: "{{ vcenter_datacenter | mandatory }}"
+    validate_certs: "{{ vcenter_validate_certs | default(False) }}"
+    folder: "{{ vcenter_path | default( vcenter_datacenter + '/' + (vcenter_folder | default('')) + '/vm' ) }}"
+    name: "{{ template.inventory_hostname | mandatory }}"
+    state: "poweredon"
+    guest_id: "otherLinux64Guest"
+    esxi_hostname: "{{ template.esxi_hostname | mandatory }}"
+    disk:
+    - size_gb: "{{ template.vm_disk_size_gb | default(8) }}"
+      type: "{{ template.vm_disk_type }}"
+      datastore: "{{ template.vm_datastore | mandatory }}"
+    hardware:
+      memory_mb: "{{ template.vm_memory_mb | default(2048) }}"
+      memory_reservation_lock: "{{ template.vm_memory_reservation | default(False) }}"
+      mem_reservation: "{{ template.vm_memory_reservation_mb | default(vm_memory_mb) }}"
+      num_cpus: "{{ template.vm_num_cpus | default(1) }}"
+      scsi: "{{ template.vm_scsi | default(omit) }}"
+    networks:
+    - name: "{{ template.vm_network | default('VM Network') }}"
+      device_type: "{{ template.vm_network_device | default('vmxnet3') }}"
+    cdrom:
+      - controller_number: 0
+        unit_number: 0
+        state: present
+        type: iso
+        iso_path: "{{ template.vm_iso | mandatory }}"
+  register: create_vm
+

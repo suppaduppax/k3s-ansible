@@ -1,0 +1,3 @@
+[submodule "collections/ansible_collections/lab"]
+	path = collections/ansible_collections/lab
+	url = ssh://git@github.com/suppaduppax/ac_lab.git

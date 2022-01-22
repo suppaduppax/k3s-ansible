@@ -1,0 +1,26 @@
+---
+- name: Debug virtual machine name
+  debug:
+    msg: "Creating vm node '{{ k3s_node.inventory_hostname }}' from template '{{ k3s_node.vm_template }}'"
+
+- name: Clone virtual machine
+  community.vmware.vmware_guest_cross_vc_clone:
+    hostname: "{{ vcenter_hostname | mandatory }}"
+    username: "{{ vcenter_username | mandatory }}"
+    password: "{{ vcenter_password | mandatory }}"
+    name: "{{ k3s_node.vm_template | mandatory }}"
+    validate_certs: "{{ vcenter_validate_certs | default(False) }}"
+    destination_vcenter_validate_certs: "{{ vcenter_validate_certs | default(False) }}"
+    destination_vcenter: "{{ vcenter_hostname | mandatory }}"
+    destination_vcenter_username: "{{ vcenter_username | mandatory }}"
+    destination_vcenter_password: "{{ vcenter_password | mandatory }}"
+    destination_vcenter_port: '{{ vcenter_port | default(omit) }}'
+    destination_vm_name: "{{ k3s_node.inventory_hostname | mandatory }}"
+    destination_host: '{{ esxi_hostname | mandatory }}'
+    destination_datastore: '{{ k3s_node.vm_datastore | mandatory }}'
+    # {{ vm_vcenter_path | default( '/' + vcenter_datacenter + '/' + (vm_folder | default('')) + '/vm') }}"
+    # usual path of /datacenter/vm/vm_folder fails to find the folder
+    # having just vm_folder seems to work. perhaps its a bug
+    destination_vm_folder: "{{ vcenter_folder | default(omit) }}" 
+    state: poweredon
+  register: clone_vm

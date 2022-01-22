@@ -1,0 +1,30 @@
+---
+- hosts: localhost
+  connection: local
+  ignore_unreachable: yes
+  tasks:
+    - name: Ensure nodes are powered on
+      community.vmware.vmware_guest_powerstate:
+        hostname: "{{ vcenter_hostname | mandatory }}"
+        username: "{{ vcenter_username | mandatory }}"
+        password: "{{ vcenter_password | mandatory }}"
+        name: "{{ hostvars[item].inventory_hostname | mandatory }}"
+        validate_certs: "{{ vcenter_validate_certs | default(False) }}"
+        folder: "{{ vm_vcenter_path | default( '/' + vcenter_datacenter + '/' + (vm_folder | default('')) + '/vm') }}"
+        state: "powered-on"
+      loop: "{{ groups['k3s_cluster'] }}"
+      register: powerstate_vm
+
+    # this module seems to hang for no reason... skip for now use timeout instead
+    - name: Wait for VMware tools to become available
+      when: false
+      vmware_guest_tools_wait:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        datacenter: "{{ vcenter_datacenter }}"
+        folder: "/{{ vcenter_datacenter }}/vm/{{ vm_folder }}"
+        name: "{{ hostvars[item].inventory_hostname }}"
+        validate_certs: no
+      loop: "{{ groups['k3s_cluster'] }}"
+      register: vm_facts

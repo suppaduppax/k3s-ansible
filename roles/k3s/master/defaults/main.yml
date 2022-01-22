@@ -1,7 +1,5 @@
 ---
-<<<<<<< HEAD
 k3s_server_location: /var/lib/rancher/k3s
-=======
 ansible_user: root
 server_init_args: >-
   {% if groups['master'] | length > 1 %}
@@ -13,4 +11,3 @@ server_init_args: >-
     --token {{ k3s_token }}
   {% endif %}
   {{ extra_server_args | default('') }}
->>>>>>> 4ed559944262d039e9c5b114b2d6b844f243eb0c

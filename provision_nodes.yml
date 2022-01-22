@@ -1,0 +1,21 @@
+---
+- hosts: localhost
+  gather_facts: no
+  ignore_unreachable: yes
+  
+  tasks:
+    - name: Include provision_node role for k3s_cluster
+      include_role:
+        role: vm/provision
+      vars:
+        provision_node: "{{ hostvars[item] }}"
+      loop: "{{ groups['k3s_cluster'] }}"
+      when: limit is undefined or item in limit
+
+    - name: Include provision_node role for loadbalancer
+      include_role:
+        role: vm/provision
+      vars:
+        provision_node: "{{ hostvars[item] }}"
+      loop: "{{ groups['loadbalancer'] }}"
+      when: limit is undefined or item in limit

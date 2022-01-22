@@ -1,0 +1,11 @@
+---
+apiVersion: awx.ansible.com/v1beta1
+kind: AWX
+metadata:
+  name: awx
+spec:
+  ingress_type: ingress
+  hostname: awx.home
+  web_resource_requirements: {}
+  task_resource_requirements: {}
+  ee_resource_requirements: {}

@@ -10,7 +10,7 @@ systemd_dir: /etc/systemd/system
 # Also you should define k3s_token so that masters can talk together securely
 
 apiserver_endpoint: "{{ hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0]) }}"
-# k3s_token: "mysupersecuretoken"
+k3s_token: "{{ vault_k3s_token }}"
 
 extra_server_args: ""
 extra_agent_args: ""

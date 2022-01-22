@@ -1,0 +1,30 @@
+---
+# tasks file for restore_snapshot
+- debug:
+    msg: Restoring '{{ 'latest' if snapshot_name == "__LATEST__" else snapshot_name }}'
+
+- name: Get snapshot info if restoring latest snapshot
+  community.vmware.vmware_guest_snapshot_info:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    datacenter: "{{ vcenter_datacenter }}"
+    folder: "{{ vcenter_folder}}"
+    name: "{{ inventory_hostname }}"
+    validate_certs: no
+  delegate_to: localhost
+  register: snapshot_info
+
+- name: Revert to a snapshot
+  when: snapshot_info.guest_snapshots.snapshots | count > 0
+  community.vmware.vmware_guest_snapshot:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    datacenter: "{{ vcenter_datacenter }}"
+    folder: "{{ vcenter_folder }}"
+    name: "{{ inventory_hostname }}"
+    state: revert
+    snapshot_name: "{{ snapshot_info.guest_snapshots.current_snapshot.name if snapshot_name == '__LATEST__' else snapshot }}"
+    validate_certs: no
+  delegate_to: localhost

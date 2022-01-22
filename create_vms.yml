@@ -1,0 +1,10 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Clone k3s servers from template
+      include_role:
+        role: vm/create_vm
+      vars:
+        k3s_node: "{{ hostvars[item] }}"
+      loop: "{{ groups['k3s_cluster'] }}"
+      when: limit is undefined or item in limit

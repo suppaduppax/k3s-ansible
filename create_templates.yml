@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Create vm templates
+      include_role:
+        role: vm/create_template
+      vars:
+        template: "{{ hostvars[item] }}"
+      loop: "{{ groups['vcenter_template'] }}"
