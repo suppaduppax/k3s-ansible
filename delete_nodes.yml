@@ -1,0 +1,25 @@
+---
+- hosts: localhost
+  connection: local
+  ignore_unreachable: yes
+  tasks:
+    - pause:
+        prompt: "Are you sure you want to delete k3s_cluster nodes? [y/N] "
+      register: confirm
+      when: confirm is undefined
+    
+    - name: Ensure nodes are powered on
+      vars:
+        yes_variations: ["y", "Y", "yes", "Yes" , "YES"]
+      when: confirm.user_input | default(confirm) in yes_variations
+      community.vmware.vmware_guest:
+        hostname: "{{ vcenter_hostname | mandatory }}"
+        username: "{{ vcenter_username | mandatory }}"
+        password: "{{ vcenter_password | mandatory }}"
+        name: "{{ hostvars[item].inventory_hostname | mandatory }}"
+        validate_certs: "{{ vcenter_validate_certs | default(False) }}"
+        folder: "{{ vm_vcenter_path | default( '/' + vcenter_datacenter + '/' + (vm_folder | default('')) + '/vm') }}"
+        state: "absent"
+        force: true
+      loop: "{{ groups['k3s_cluster'] }}"
+      register: delete_vm

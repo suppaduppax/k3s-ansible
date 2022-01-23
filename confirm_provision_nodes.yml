@@ -1,0 +1,25 @@
+- hosts: localhost
+  tasks:
+    - set_fact:
+        reprovision_nodes: []
+
+    - name: Check ips
+      include_role:
+        role: vm/confirm_provision_node    
+      loop: "{{ groups['k3s_cluster'] + groups['loadbalancer'] }}"
+      vars:
+        check_node: "{{ item }}"
+
+    - name: Reprovision failed nodes
+      when:
+        - reprovision_nodes is defined
+        - reprovision_nodes | count > 0 
+      block:
+        - include_role:
+            role: vm/provision_node
+          loop: "{{ reprovision_nodes }}"
+          vars:
+            provision_node: item
+      
+      always:
+        

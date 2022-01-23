@@ -1,0 +1,49 @@
+---
+- name: Wait for VMware tools to become available
+  community.vmware.vmware_guest_tools_wait:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    name: "{{ item }}"
+    folder: "{{ vcenter_path }}"
+    datacenter: "{{ vcenter_datacenter }}"
+    validate_certs: no
+  delegate_to: localhost
+  register: facts
+
+- debug: var=facts 
+
+- name: Block for when no ip was found on vm
+  when: not facts.instance.ipv4
+  block:
+    - name: Try rebooting to get dhcp ip
+      community.vmware.vmware_guest_powerstate:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        name: "{{ item }}"
+        folder: "{{ vcenter_path }}"
+        datacenter: "{{ vcenter_datacenter }}"
+        validate_certs: no
+        state: reboot-guest
+        state_change_timeout: 25
+      delegate_to: localhost
+      register: reboot_facts
+
+    - name: Wait for VMware tools to become available again
+      community.vmware.vmware_guest_tools_wait:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        name: "{{ item }}"
+        folder: "{{ vcenter_path }}"
+        datacenter: "{{ vcenter_datacenter }}"
+        validate_certs: no
+      delegate_to: localhost
+      register: retry_facts
+
+    - debug: var=retry_facts 
+    
+    - fail:
+      when: not retry_facts.instance.ipv4
+

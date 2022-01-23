@@ -1,7 +1,7 @@
 ---
 - hosts: localhost
   gather_facts: no
-  ignore_unreachable: yes
+#  ignore_unreachable: yes
   
   tasks:
     - name: Include provision_node role for k3s_cluster
@@ -9,13 +9,19 @@
         role: vm/provision
       vars:
         provision_node: "{{ hostvars[item] }}"
-      loop: "{{ groups['k3s_cluster'] }}"
+      loop: "{{ groups['k3s_cluster'] + groups['loadbalancer'] }}"
       when: limit is undefined or item in limit
 
-    - name: Include provision_node role for loadbalancer
-      include_role:
-        role: vm/provision
-      vars:
-        provision_node: "{{ hostvars[item] }}"
-      loop: "{{ groups['loadbalancer'] }}"
-      when: limit is undefined or item in limit
+    - name: Wait for vmware tools to be available and verify ip is correct
+      community.vmware.vmware_guest_tools_wait:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        name: "{{ item }}"
+        folder: "{{ vcenter_path }}"
+        datacenter: "{{ vcenter_datacenter }}"
+        validate_certs: no
+      delegate_to: localhost
+      register: facts
+      until: facts.instance.ipv4 in hostvars[item].ip
+      loop: "{{ groups['k3s_cluster'] + groups['loadbalancer'] }}"

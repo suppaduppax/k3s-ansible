@@ -6,6 +6,10 @@
   delegate_to: "{{ provision_node.inventory_hostname | mandatory }}"
   delegate_facts: yes
   register: setup_result
+  until: setup_result is not failed
+  retries: 15
+  delay: 10
+  ignore_errors: yes
 
 #- debug: var="setup_result.failed"
 

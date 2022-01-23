@@ -1,0 +1,19 @@
+---
+# tasks file for confirm_provision_nodes
+- name: Check ips
+  community.vmware.vmware_guest_info:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    datacenter: "{{ vcenter_datacenter }}"
+    name: "{{ check_node }}"
+#   schema: "vsphere"
+#   properties: ["", "guest.disk", "overallStatus"]
+    validate_certs: no
+  register: info
+
+- set_fact:
+    reprovision_nodes: "{{ reprovision_nodes | default([]) + [check_node] }}"
+  when: info.instance.advanced_settings.ipv4 != hostvars[check_node]['ip'] | ipaddr('address')
+
+

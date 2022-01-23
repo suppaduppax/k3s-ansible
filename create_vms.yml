@@ -6,5 +6,10 @@
         role: vm/create_vm
       vars:
         k3s_node: "{{ hostvars[item] }}"
-      loop: "{{ groups['k3s_cluster'] }}"
+      loop: "{{ groups['k3s_cluster'] + groups['loadbalancer'] }}"
       when: limit is undefined or item in limit
+
+    - name: Wait for VMware tools to become available
+      include_tasks: tasks/confirm_create_vm.yml
+      loop: "{{ groups['k3s_cluster'] + groups['loadbalancer'] }}"
+

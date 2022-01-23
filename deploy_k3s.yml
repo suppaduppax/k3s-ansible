@@ -1,0 +1,29 @@
+- import_playbook: create_templates.yml
+
+- hosts: localhost
+  tasks:
+    - name: Wait 30 seconds for vcenter vmwaretools to update newly created templates
+      wait_for:
+        timeout: 30
+
+- import_playbook: create_vms.yml
+
+- import_playbook: poweron_nodes.yml
+
+- hosts: localhost
+  tasks:
+    - name: Wait 30 seconds for vcenter vmwaretools to update newly created templates
+      wait_for:
+        timeout: 30
+
+- import_playbook: provision_nodes.yml
+
+- hosts: localhost
+  tasks:
+    - name: Wait 30 seconds for vcenter vmwaretools to update newly created templates
+      wait_for:
+        timeout: 30
+
+- import_playbook: install_loadbalancer.yml
+
+- import_playbook: site.yml
