@@ -27,3 +27,8 @@
 - import_playbook: install_loadbalancer.yml
 
 - import_playbook: site.yml
+
+- import_playbook: create_snapshot.yml
+  vars:
+    snapshot: "Deployed k3s"
+    snapshot_description: "Fresh deployment of k3s using k3s-ansible."
