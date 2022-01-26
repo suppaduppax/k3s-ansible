@@ -131,13 +131,17 @@ all:
 If you want to have a less populated hosts file, you can set these variables as directories in your inventory under `inventory/group_vars/<group_name>` and `inventory/host_vars/<host_name>`. Being able to see all the node settings at a glance however, may be more useful.
 
 If needed, you can also edit `inventory/my-cluster/group_vars/all.yml` to match your environment.
+<br>
+<br>
 
-Next, run the deployment script. This script is prone to errors due to slow vmware-tools syncing and may have to be run several times to complete installation.
+> For an automated install run the deployment script. This script is prone to errors due to slow vmware-tools syncing and may have to be run several times to complete installation.
 ```bash
 deploy_k3s.sh
 ```
+<br>
+<br>
 
-For a more consistent installation, run each playbook separately.
+> For a more consistent installation, run each playbook separately.
 
 First create the templates. *** iso file should be a fully automated installer (see <https://fai-project.org> for a fully automated Debian install)
 ```bash
