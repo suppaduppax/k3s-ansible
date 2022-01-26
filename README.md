@@ -131,7 +131,13 @@ all:
 If you want to have a less populated hosts file, you can set these variables as directories in your inventory under `inventory/group_vars/<group_name>` and `inventory/host_vars/<host_name>`. Being able to see all the node settings at a glance however, may be more useful.
 
 If needed, you can also edit `inventory/my-cluster/group_vars/all.yml` to match your environment.
-You can use this sample inventory:
+
+Third, Prepare you vmware dynamic inventory file.
+Create your vmware dynamic inventory file in: 
+```inventory/my-cluster/hosts.vmware.yml```
+
+You can modify this sample inventory to suit your needs:
+```bash
 plugin: vmware_vm_inventory
 strict: False
 hostname: photon-machine.home
@@ -143,8 +149,9 @@ hostnames:
   # sets the hostname to the simple name of the host without the extra identifiers attached to the end of it
   - config.name
 
-# this compose definition is necessary for when vCenter has trouble finding the correct ipAddress in k3s servers due to the extra network interfaces
-# that are created for k3s. This finds the interface assigned with the default 'VM Network' in vCenter and gets its ipv4 address. Edit the 'VM Network'
+# this compose definition is necessary for when vCenter has trouble finding the correct ipAddress in 
+# k3s servers due to the extra network interfaces that are created for k3s. This finds the interface 
+# assigned with the default 'VM Network' in vCenter and gets its ipv4 address. Edit the 'VM Network'
 # match to suit your environment
 compose:
   ansible_host: "(guest.net | selectattr('network', 'match', 'VM Network') | first ) ['ipAddress'] | select('search', '[0-9]+[.][0-9]+[.][0-9]+[.][0-9]+') | first"
@@ -176,8 +183,6 @@ properties:
   - "config.guestId"
 ```
 
-## Prepare you vmware dynamic inventory file.
-In the `inventory/my-cluster` directory, create a the vmware dynamic inventory file `hosts.vmware.yml`
 <br>
 <br>
 
