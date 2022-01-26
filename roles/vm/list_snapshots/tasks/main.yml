@@ -1,0 +1,16 @@
+---
+# tasks file for create_snapshot
+- name: Create a snapshot
+  community.vmware.vmware_guest_snapshot_info:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    datacenter: "{{ vcenter_datacenter }}"
+    folder: "{{ vcenter_path }}"
+    name: "{{ vm_name }}"
+    validate_certs: no
+  delegate_to: localhost
+  register: snapshots_result
+
+- debug:
+    var: snapshots_result
