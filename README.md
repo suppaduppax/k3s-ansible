@@ -1,4 +1,4 @@
-# Build a Kubernetes cluster using k3s via Ansible
+# Build a Kubernetes cluster using k3s via Ansible in VMWare vCenter
 
 Original Author: <https://github.com/itwars0> \
 Adapted by: <https://github.com/suppaduppax>
@@ -131,6 +131,53 @@ all:
 If you want to have a less populated hosts file, you can set these variables as directories in your inventory under `inventory/group_vars/<group_name>` and `inventory/host_vars/<host_name>`. Being able to see all the node settings at a glance however, may be more useful.
 
 If needed, you can also edit `inventory/my-cluster/group_vars/all.yml` to match your environment.
+You can use this sample inventory:
+plugin: vmware_vm_inventory
+strict: False
+hostname: photon-machine.home
+username: administrator@vsphere.local
+password: MySecretPassword123
+validate_certs: False
+with_tags: True
+hostnames:
+  # sets the hostname to the simple name of the host without the extra identifiers attached to the end of it
+  - config.name
+
+# this compose definition is necessary for when vCenter has trouble finding the correct ipAddress in k3s servers due to the extra network interfaces
+# that are created for k3s. This finds the interface assigned with the default 'VM Network' in vCenter and gets its ipv4 address. Edit the 'VM Network'
+# match to suit your environment
+compose:
+  ansible_host: "(guest.net | selectattr('network', 'match', 'VM Network') | first ) ['ipAddress'] | select('search', '[0-9]+[.][0-9]+[.][0-9]+[.][0-9]+') | first"
+
+resources:
+  - resources:
+      - folder:
+          # the vcenter folder to store the vms in
+          - "ansible-managed"
+
+# since we need 'guest.net' as a property, we need to define the rest of the default properties as well
+properties:
+  - "name"
+  - "config.cpuHotAddEnabled"
+  - "config.cpuHotRemoveEnabled"
+  - "config.instanceUuid"
+  - "config.hardware.numCPU"
+  - "config.template"
+  - "config.name"
+  - "config.uuid"
+  - "guest.net"
+  - "guest.hostName"
+  - "guest.ipAddress"
+  - "guest.guestId"
+  - "guest.guestState"
+  - "runtime.maxMemoryUsage"
+  - "customValue"
+  - "summary.runtime.powerState"
+  - "config.guestId"
+```
+
+## Prepare you vmware dynamic inventory file.
+In the `inventory/my-cluster` directory, create a the vmware dynamic inventory file `hosts.vmware.yml`
 <br>
 <br>
 
