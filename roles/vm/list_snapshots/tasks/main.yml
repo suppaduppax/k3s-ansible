@@ -1,6 +1,6 @@
 ---
 # tasks file for create_snapshot
-- name: Create a snapshot
+- name: Get snapshots info
   community.vmware.vmware_guest_snapshot_info:
     hostname: "{{ vcenter_hostname }}"
     username: "{{ vcenter_username }}"
@@ -12,5 +12,6 @@
   delegate_to: localhost
   register: snapshots_result
 
-- debug:
+- name: List vm snapshots
+  debug:
     var: snapshots_result

@@ -2,6 +2,8 @@
   vars_prompt:
     - name: snapshot
       prompt: Enter snapshot name:(leave blank for latest)     
+      private: no
+
   tasks:
 
     - name: Limit block
@@ -9,4 +11,4 @@
       include_role:
         role: vm/restore_snapshot
       vars:
-        snapshot_name: "{{ '__LATEST__' if snapshot.user_input is undefined or snapshot.user_input == '' else snapshot }}"    
+        snapshot_name: "{{ '__LATEST__' if snapshot.user_input | default(snapshot) == '' else snapshot.user_input | default(snapshot) }}"    

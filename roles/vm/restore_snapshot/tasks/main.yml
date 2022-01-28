@@ -4,6 +4,7 @@
     msg: Restoring '{{ 'latest' if snapshot_name == "__LATEST__" else snapshot_name }}'
 
 - name: Get snapshot info if restoring latest snapshot
+  when: snapshot_name != "__LATEST__"
   community.vmware.vmware_guest_snapshot_info:
     hostname: "{{ vcenter_hostname }}"
     username: "{{ vcenter_username }}"
