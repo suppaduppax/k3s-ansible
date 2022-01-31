@@ -3,9 +3,11 @@
   tasks:
     - name: Clone k3s servers from template
       include_role:
-        role: vm/create_vm
+        role: lab.vmware.clone_vm
       vars:
-        k3s_node: "{{ hostvars[item] }}"
+        vm_name: "{{ hostvars[item].vm_name }}"
+        vm_template: "{{ hostvars[item].vm_template }}"
+        vm_datastore: "{{ hostvars[item].vm_datastore }}"
       loop: "{{ groups['k3s_cluster'] + groups['loadbalancer'] }}"
       when: limit is undefined or item in limit
 
