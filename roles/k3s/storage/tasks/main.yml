@@ -1,0 +1,24 @@
+---
+- name: Apply taints to node
+  ansible.builtin.command:
+    cmd: "kubectl {{ '--kubeconfig ' + kube_config_file + ' ' if kube_config_file is defined else ''}}taint nodes {{ inventory_hostname }} {{ item }}"
+  register: taint_result
+  changed_when:
+    - taint_result.stdout | regex_search(' tainted$')
+  failed_when:
+    - not taint_result.stdout | regex_search(' tainted$')
+    - not taint_result.stderr | regex_search(' already has ')
+  loop: "{{ node_taints }}"
+  delegate_to: localhost
+
+- name: Apply labels to node
+  ansible.builtin.command:
+    cmd: "kubectl {{ '--kubeconfig ' + kube_config_file + ' ' if kube_config_file is defined else ''}}label nodes {{ inventory_hostname }} {{ item }}"
+  register: label_result
+  changed_when:
+    - label_result.stdout | regex_search(' labeled$')
+  failed_when:
+    - not label_result.stdout | regex_search(' labeled$')
+    - not label_result.stderr | regex_search(' already has ')
+  loop: "{{ node_labels }}"
+  delegate_to: localhost

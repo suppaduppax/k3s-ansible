@@ -1,0 +1,7 @@
+---
+node_taints:
+  - CriticalAddonsOnly=true:NoExecute
+  - StorageOnly=true:NoExecute
+
+node_labels:
+  - DedicatedStorage=true

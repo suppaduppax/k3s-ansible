@@ -1,0 +1,2 @@
+---
+remote_kube_config_file: ~/.kube/config

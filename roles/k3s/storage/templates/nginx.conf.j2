@@ -1,0 +1,38 @@
+# {{ ansible_managed }}
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+  worker_connections 768;
+  # multi_accept on;
+}
+
+stream {
+  upstream {{ nginx_k3s_servers_upstream_name | default('k3s_servers') }} {
+{% for server in nginx_k3s_servers %}
+      server {{ hostvars[server].ansible_host }}:{{ nginx_k3s_server_port }};
+{% endfor %}
+  }
+
+  server {
+    listen {{ nginx_k3s_server_port }};
+    proxy_pass {{ nginx_k3s_servers_upstream_name | default('k3s_servers') }};
+  }
+
+{% for service in nginx_k3s_services %} 
+  upstream {{ service.name }} {
+    least_conn;
+{% for server in nginx_k3s_servers %}
+    server {{ hostvars[server].ansible_host }}:{{ service.port }} max_fails=3 fail_timeout=5s;
+{% endfor %}
+  }
+
+  server {
+    listen {{ service.port }};
+    proxy_pass {{ service.name }};
+  }
+{% endfor %}
+}
+

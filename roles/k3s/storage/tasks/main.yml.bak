@@ -1,0 +1,6 @@
+---
+- name: Apply taints to storage nodes
+  include_tasks: apply_taints.yml
+  loop: "{{ groups['storage'] }}"     
+  loop_control:
+    loop_var: storage_node

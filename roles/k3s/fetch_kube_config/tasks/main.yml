@@ -1,0 +1,7 @@
+---
+- name: Fetch kubec onfig from master
+  ansible.builtin.fetch:
+    src: "{{ remote_kube_config_file | mandatory }}"
+    dest: "{{ kube_config_file | mandatory }}"
+    flat: yes
+  delegate_to: "{{ groups['master'][0] }}"
