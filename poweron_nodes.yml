@@ -10,7 +10,7 @@
         password: "{{ vcenter_password | mandatory }}"
         name: "{{ hostvars[item].inventory_hostname | mandatory }}"
         validate_certs: "{{ vcenter_validate_certs | default(False) }}"
-        folder: "{{ vm_vcenter_path | default( '/' + vcenter_datacenter + '/' + (vm_folder | default('')) + '/vm') }}"
+        folder: "{{ vm_vcenter_path | default( '/' + vcenter_datacenter + '/vm/' + (vm_folder | default(''))) }}"
         state: "powered-on"
       loop: "{{ groups['k3s_cluster'] + groups['loadbalancer'] }}"
       register: powerstate_vm
