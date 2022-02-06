@@ -1,4 +1,10 @@
 - hosts: storage
+  pre_tasks:
+    - include_role:
+        role: k3s/fetch_kube_config
+        apply:
+          delegate_to: localhost
+
   roles:
     - role: k3s/storage
 
@@ -21,9 +27,6 @@
   vars:
     longhorn_manifest_path: "{{ playbook_dir }}/files/longhorn.yaml"
 
-  roles:
-    - role: k3s/fetch_kube_config
-
   tasks:
     - name: Add the Longhorn Helm repository
       kubernetes.core.helm_repository:
@@ -43,3 +46,9 @@
         validate_certs: no
         values_files: "{{ playbook_dir }}/files/longhorn_values.yml"
         force: yes
+
+    - name: Remove local-path storage from default storageclass
+      command: "kubectl patch storageclass {{ storage }} --kubeconfig {{ kube_config_file }} -p '{{ patch }}'"
+      vars:
+        storage: local-path
+        patch: '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'

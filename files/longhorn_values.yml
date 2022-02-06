@@ -54,7 +54,7 @@ service:
 persistence:
   defaultClass: true
   defaultFsType: ext4
-  defaultClassReplicaCount: 3
+  defaultClassReplicaCount: 2
   reclaimPolicy: Delete
   recurringJobSelector:
     enable: false
@@ -77,7 +77,7 @@ defaultSettings:
   backupTarget: ~
   backupTargetCredentialSecret: ~
   allowRecurringJobWhileVolumeDetached: ~
-  createDefaultDiskLabeledNodes: ~
+  createDefaultDiskLabeledNodes: true
   defaultDataPath: ~
   defaultDataLocality: ~
   replicaSoftAntiAffinity: ~
@@ -89,7 +89,7 @@ defaultSettings:
   defaultLonghornStaticStorageClass: ~
   backupstorePollInterval: ~
   taintToleration: "CriticalAddonsOnly=true:NoExecute;StorageOnly=true:NoExecute"
-  systemManagedComponentsNodeSelector: "DedicatedStorage=true"
+  systemManagedComponentsNodeSelector: ~
   priorityClass: ~
   autoSalvage: ~
   autoDeletePodWhenVolumeDetachedUnexpectedly: ~
@@ -129,12 +129,11 @@ longhornManager:
     operator: "Equal"
     value: "true"
     effect: "NoExecute"
-  nodeSelector: 
+  nodeSelector: {}
   ## If you want to set node selector for Longhorn Manager DaemonSet, delete the `{}` in the line above
   ## and uncomment this example block
   #  label-key1: "label-value1"
   #  label-key2: "label-value2"
-    DedicatedStorage: "true"  
 
 longhornDriver:
   priorityClass: ~
@@ -149,12 +148,11 @@ longhornDriver:
     operator: "Equal"
     value: "true"
     effect: "NoExecute"
-  nodeSelector:
+  nodeSelector: {}
   ## If you want to set node selector for Longhorn Manager DaemonSet, delete the `{}` in the line above
   ## and uncomment this example block
   #  label-key1: "label-value1"
   #  label-key2: "label-value2"
-    DedicatedStorage: "true"  
 
 longhornUI:
   priorityClass: ~
@@ -169,12 +167,11 @@ longhornUI:
     operator: "Equal"
     value: "true"
     effect: "NoExecute"
-  nodeSelector:
+  nodeSelector: {}
   ## If you want to set node selector for Longhorn Manager DaemonSet, delete the `{}` in the line above
   ## and uncomment this example block
   #  label-key1: "label-value1"
   #  label-key2: "label-value2"
-    DedicatedStorage: "true"  
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

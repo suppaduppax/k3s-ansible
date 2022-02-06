@@ -4,4 +4,5 @@ node_taints:
   - StorageOnly=true:NoExecute
 
 node_labels:
-  - DedicatedStorage=true
+  - storage=longhorn
+  - node.longhorn.io/create-default-disk=true

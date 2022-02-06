@@ -10,31 +10,8 @@
         password: "{{ vcenter_password | mandatory }}"
         name: "{{ hostvars[item].inventory_hostname | mandatory }}"
         validate_certs: "{{ vcenter_validate_certs | default(False) }}"
-        folder: "{{ vm_vcenter_path | default( '/' + vcenter_datacenter + '/' + (vm_folder | default('')) + '/vm') }}"
+        folder: "{{ vm_vcenter_path | default( '/' + vcenter_datacenter + '/vm/' + (vm_folder | default(''))) }}"
         state: "powered-off"
-      loop: "{{ groups['k3s_cluster'] }}"
+      loop: "{{ groups['k3s_cluster'] + groups['loadbalancer'] + groups['vcenter_template'] }}"
       register: powerstate_vm
 
-    - name: Ensure loadbalancer powered off
-      community.vmware.vmware_guest_powerstate:
-        hostname: "{{ vcenter_hostname | mandatory }}"
-        username: "{{ vcenter_username | mandatory }}"
-        password: "{{ vcenter_password | mandatory }}"
-        name: "{{ hostvars[item].inventory_hostname | mandatory }}"
-        validate_certs: "{{ vcenter_validate_certs | default(False) }}"
-        folder: "{{ vm_vcenter_path | default( '/' + vcenter_datacenter + '/' + (vm_folder | default('')) + '/vm') }}"
-        state: "powered-off"
-      loop: "{{ groups['loadbalancer'] }}"
-      register: powerstate_vm
-
-    - name: Ensure templates are powered off
-      community.vmware.vmware_guest_powerstate:
-        hostname: "{{ vcenter_hostname | mandatory }}"
-        username: "{{ vcenter_username | mandatory }}"
-        password: "{{ vcenter_password | mandatory }}"
-        name: "{{ hostvars[item].inventory_hostname | mandatory }}"
-        validate_certs: "{{ vcenter_validate_certs | default(False) }}"
-        folder: "{{ vm_vcenter_path | default( '/' + vcenter_datacenter + '/' + (vm_folder | default('')) + '/vm') }}"
-        state: "powered-off"
-      loop: "{{ groups['vcenter_template'] }}"
-      register: powerstate_vm
