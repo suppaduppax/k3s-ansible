@@ -1,0 +1,18 @@
+- hosts: localhost
+  gather_facts: no
+  vars:
+    kube_dns_config_map: files/kube_dns.yml.j2
+  tasks:
+    - debug:
+        var: lookup('template', kube_dns_config_map)
+      vars:
+        kube_dns_nameservers:
+          - 192.168.0.1
+
+
+    - kubernetes.core.k8s:
+        kubeconfig: "{{ kube_config_file }}" 
+        template: "{{ kube_dns_config_map }}"
+      vars:
+        kube_dns_nameservers:
+          - 192.168.0.1

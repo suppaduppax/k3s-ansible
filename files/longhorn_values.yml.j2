@@ -74,8 +74,8 @@ csi:
   snapshotterReplicaCount: ~
 
 defaultSettings:
-  backupTarget: "s3://longhorn@homelab"
-  backupTargetCredentialSecret: "longhorn-backup-cred"
+  backupTarget: {{ '"' + longhorn_backup.target + '"' if longhorn_backup.target is defined else '~' }}
+  backupTargetCredentialSecret: {{ '"' + longhorn_backup.secret_name + '"' if longhorn_backup.secret_name is defined else '~' }}
   allowRecurringJobWhileVolumeDetached: ~
   createDefaultDiskLabeledNodes: true
   defaultDataPath: ~
@@ -88,7 +88,12 @@ defaultSettings:
   defaultReplicaCount: ~
   defaultLonghornStaticStorageClass: ~
   backupstorePollInterval: ~
-  taintToleration: "CriticalAddonsOnly=true:NoExecute;StorageOnly=true:NoExecute"
+  taintToleration: {% if longhorn_taint_tolerations is defined %}
+"{% for taint in longhorn_taint_tolerations %}
+{{ taint.name }}{% if taint.operator == 'Equal' %}={{ taint.value }}{% endif %}:{{ taint.effect }}{{ ';' if loop.index < loop.length else '' }}{% endfor %}"
+{% else %}
+~
+{% endif %}
   systemManagedComponentsNodeSelector: ~
   priorityClass: ~
   autoSalvage: ~
@@ -118,15 +123,17 @@ privateRegistry:
 
 longhornManager:
   priorityClass: ~
-  tolerations: 
-    - key: "CriticalAddonsOnly"
-      operator: "Equal"
-      value: "true"
-      effect: "NoExecute"
-    - key: "StorageOnly"
-      operator: "Equal"
-      value: "true"
-      effect: "NoExecute"
+  tolerations: {% if longhorn_taint_tolerations is defined %}
+
+{% for taint in longhorn_taint_tolerations %}
+    - key: "{{ taint.name }}"
+      operator: "{{ taint.operator }}"
+      value: "{{ taint.value }}"
+      effect: "{{ taint.effect }}"
+{% endfor %}
+{% else %}
+{}
+{% endif %}
   nodeSelector: {}
   ## If you want to set node selector for Longhorn Manager DaemonSet, delete the `{}` in the line above
   ## and uncomment this example block
@@ -135,15 +142,17 @@ longhornManager:
 
 longhornDriver:
   priorityClass: ~
-  tolerations: 
-    - key: "CriticalAddonsOnly"
-      operator: "Equal"
-      value: "true"
-      effect: "NoExecute"
-    - key: "StorageOnly"
-      operator: "Equal"
-      value: "true"
-      effect: "NoExecute"
+  tolerations: {% if longhorn_taint_tolerations is defined %}
+
+{% for taint in longhorn_taint_tolerations %}
+    - key: "{{ taint.name }}"
+      operator: "{{ taint.operator }}"
+      value: "{{ taint.value }}"
+      effect: "{{ taint.effect }}"
+{% endfor %}
+{% else %}
+{}
+{% endif %}
   nodeSelector: {}
   ## If you want to set node selector for Longhorn Manager DaemonSet, delete the `{}` in the line above
   ## and uncomment this example block
@@ -152,15 +161,17 @@ longhornDriver:
 
 longhornUI:
   priorityClass: ~
-  tolerations: 
-    - key: "CriticalAddonsOnly"
-      operator: "Equal"
-      value: "true"
-      effect: "NoExecute"
-    - key: "StorageOnly"
-      operator: "Equal"
-      value: "true"
-      effect: "NoExecute"
+  tolerations: {% if longhorn_taint_tolerations is defined %}
+
+{% for taint in longhorn_taint_tolerations %}
+    - key: "{{ taint.name }}"
+      operator: "{{ taint.operator }}"
+      value: "{{ taint.value }}"
+      effect: "{{ taint.effect }}"
+{% endfor %}
+{% else %}
+{}
+{% endif %}
   nodeSelector: {}
   ## If you want to set node selector for Longhorn Manager DaemonSet, delete the `{}` in the line above
   ## and uncomment this example block

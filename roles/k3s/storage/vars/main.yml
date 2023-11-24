@@ -1,7 +1,13 @@
 ---
 node_taints:
-  - CriticalAddonsOnly=true:NoExecute
-  - StorageOnly=true:NoExecute
+  - name: CriticalAddonsOnly
+    operator: Equal
+    value: 'true'
+    effect: NoExecute
+  - name: StorageOnly
+    operator: Equal
+    value: 'true'
+    effect: NoExecute
 
 node_labels:
   - storage=longhorn

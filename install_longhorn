@@ -1,0 +1,12 @@
+- hosts: localhost
+  vars:
+    longhorn_values_file: "{{ playbook_dir }}/files/longhorn_values.yml"
+    longhorn_values_template: "{{ playbook_dir }}/files/longhorn_values.yml.j2"
+
+  tasks:
+    - name: Template longhorn values
+      template:
+        src: "{{ longhorn_values_template }}"
+        dest: "{{ longhorn_values_file }}"
+      vars:
+        longhorn_taint_tolerations: "{{ hostvars[groups['storage'][0]].node_taints }}"

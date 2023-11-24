@@ -9,3 +9,6 @@ netaddr
 
 #json_query
 jmespath
+
+#k8s
+kubernetes
